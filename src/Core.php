@@ -1,6 +1,6 @@
 <?php
 
-namespace Mrt\MimozaCore;
+namespace OS\MimozaCore;
 
 class Core
 {

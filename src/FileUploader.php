@@ -1,6 +1,6 @@
 <?php
 
-namespace Mrt\MimozaCore;
+namespace OS\MimozaCore;
 
 use Verot\Upload\Upload;
 
@@ -15,7 +15,7 @@ class FileUploader
 	public array $uploadPathInfo = [];
 
 	/**
-	 * File uploads folder key. It's defined in Mrt\MimozaCore\Constants
+	 * File uploads folder key. It's defined in OS\MimozaCore\Constants
 	 *
 	 * @var string
 	 */
