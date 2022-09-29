@@ -371,7 +371,7 @@ class Functions
 	 * @param string $data
 	 * @return string
 	 */
-	public function cleanGet(string $data): string
+	public function cleanGet(string $data): ?string
 	{
 		return $this->cleaner($this->get($data));
 	}
