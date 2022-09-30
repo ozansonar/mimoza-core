@@ -376,26 +376,43 @@ class Functions
 		return $this->cleaner($this->get($data));
 	}
 
-	/**
-	 * It's clean $_POST and return as integer
-	 *
-	 * @param $data
-	 * @return int
-	 */
-	public function cleanPostInt(string $data): ?int
-	{
-		return is_numeric($this->post($data)) ? (int)$this->post($data) : NULL;
-	}
+    /**
+     * It's clean $_POST and return as integer
+     *
+     * @param $data
+     * @return int
+     */
+    public function cleanPostInt(string $data): ?int
+    {
+        $post = $this->post($data);
+        if(empty($post)){
+            $post = 0;
+        }
+        return $this->numberOnly($post);
+    }
 
-	/**
-	 * It's clean $_GET and return as integer
-	 * @param string $data
-	 * @return int
-	 */
-	public function cleanGetInt(string $data): ?int
-	{
-		return is_numeric($this->get($data)) ? (int)$this->get($data) : NULL;
-	}
+    /**
+     * @param string $number
+     * @return bool
+     */
+    public function numberOnly(string $number)
+    {
+        return preg_match("/^[0-9]+$/",$number) == 1 ? $number:0;
+    }
+
+    /**
+     * It's clean $_GET and return as integer
+     * @param string $data
+     * @return int
+     */
+    public function cleanGetInt(string $data): ?int
+    {
+        $post = $this->get($data);
+        if(empty($post)){
+            $post = 0;
+        }
+        return $this->numberOnly($post);
+    }
 
 	/**
 	 * It's retursn cleaned $_POST that is an array
