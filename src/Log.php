@@ -40,13 +40,18 @@ class Log
 				$browser['platform'] = "";
 			}
 
+            $getLogType = $this->getLogType($logType);
+            if($getLogType === false){
+                exit("hatali log tipi: ".$logType);
+            }
+
 			$user_id = isset($_SESSION['user_id']) ? (int)($_SESSION['user_id']) : null;
 			$user_ip = $this->getUserIP();
 			$query = $this->database::$db->prepare('INSERT INTO logs (user_id, log_datetime, client_ip, log_type, log_page, log_query_string, log_detail,log_browser,log_os,log_http_user_agent) VALUES (:user_id, NOW(), :client_ip, :log_type, :log_page, :log_query_string, :log_detail,:log_browser,:log_os,:log_http_user_agent)');
 
 			$query->bindParam(':user_id', $user_id);
 			$query->bindParam(':client_ip', $user_ip);
-			$query->bindParam(':log_type', $logType);
+			$query->bindParam(':log_type', $getLogType);
 			$query->bindParam(':log_page', $_SERVER['REQUEST_URI']);
 			$query->bindParam(':log_query_string', $_SERVER['QUERY_STRING']);
 			$query->bindParam(':log_http_user_agent', $_SERVER['HTTP_USER_AGENT']);
@@ -114,9 +119,19 @@ class Log
 			return $log_types;
 		}
 		return false;
-
-
 	}
+
+    public function getLogType($type)
+    {
+        $query = $this->database::$db->prepare('SELECT * FROM log_types WHERE log_key=:log_key');
+        $query->bindParam(":log_key",$type,PDO::PARAM_STR);
+        $query->execute();
+        $logs = $query->fetch(PDO::FETCH_ASSOC);
+        if ($query->rowCount() > 0) {
+            return $logs['log_val'];
+        }
+        return false;
+    }
 
 	private function addLogType(string $logValue): bool
 	{
