@@ -385,10 +385,10 @@ class Constants
 		"gallery" => [
 			"aciklama" => "Geleri Resimleri Bulunur",
 			"folder" => "gallery",
-			"full_path" => ROOT_PATH . "uploads/gallery/",
+			"full_path" => ROOT_PATH . "/uploads/gallery/",
 			"url" => SITE_URL . "/uploads/gallery/",
-			"url_compressed" => SITE_URL . "uploads/gallery/compressed/",
-			"compressed" => ROOT_PATH . "uploads/gallery/compressed/",
+			"url_compressed" => SITE_URL . "/uploads/gallery/compressed/",
+			"compressed" => ROOT_PATH . "/uploads/gallery/compressed/",
 		],
 		"mailing" => [
 			"aciklama" => "Mailing Resimleri Bulunur",
