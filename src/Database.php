@@ -8,6 +8,7 @@ use PDOException;
 use Throwable;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
+use OS\MimozaCore\Log;
 
 /**
  * PDO sınıfı kullanılarak oluşturulan database sınıfı
@@ -108,6 +109,7 @@ class Database
                     $sqlaudit =  "INSERT INTO audit_log SET 
                             action_log_id       = :action_log_id, 
                             table_name          = :tablo, 
+                            row_id              = :row_id, 
                             field_name          = :field, 
                             new_value           = :field_val, 
                             activity            = 'INSERT',    
@@ -116,6 +118,7 @@ class Database
                     $auditLogAdd = self::$db->prepare($sqlaudit);
                     $auditLogAdd->bindValue(':action_log_id', (int)$actionLogId);
                     $auditLogAdd->bindValue(':tablo', $table);
+                    $auditLogAdd->bindValue(':row_id', $lastId);
                     $auditLogAdd->bindValue(':field', $field);
                     $auditLogAdd->bindValue(':field_val', $field_val);
                     $auditLogAdd->bindValue(':datetime', date("Y-m-d H:i:s"));
@@ -173,17 +176,26 @@ class Database
 
                 foreach ($data as $key=>$value){
                     if($oldData[$key] != $value){
-                        $changeData = array();
-                        $changeData["action_log_id"] = (int)$actionLogId;
-                        $changeData["table_name"] = $table;
-                        $changeData["row_id"] = $where["id"];
-                        $changeData["field_name"] = $key;
-                        $changeData["new_value"] = $value;
-                        $changeData["old_value"] = $oldData[$key] ?? null;
-                        $changeData["activity"] = "EDIT";
-                        $changeData["modified_by_user_id"] = $_SESSION["user_id"];
-                        $changeData["modified_datetime"] = date("Y-m-d H:i:s");
-                        self::insert("audit_log",$changeData);
+                        $sqlaudit =  "INSERT INTO audit_log SET 
+                            action_log_id       = :action_log_id, 
+                            table_name          = :table_name, 
+                            row_id              = :row_id, 
+                            field_name          = :field_name, 
+                            new_value           = :new_value, 
+                            old_value           = :old_value,    
+                            activity            = 'EDIT',   
+                            modified_by_user_id = :modified_by_user_id,   
+                            modified_datetime   = :modified_datetime";
+                        $auditLogAdd = self::$db->prepare($sqlaudit);
+                        $auditLogAdd->bindValue(':action_log_id', (int)$actionLogId);
+                        $auditLogAdd->bindValue(':table_name', $table);
+                        $auditLogAdd->bindValue(':row_id', $where["id"]);
+                        $auditLogAdd->bindValue(':field_name', $key);
+                        $auditLogAdd->bindValue(':new_value', $value);
+                        $auditLogAdd->bindValue(':old_value', $oldData[$key] ?? null);
+                        $auditLogAdd->bindValue(':modified_by_user_id', $_SESSION['user_id'] ?? 0);
+                        $auditLogAdd->bindValue(':modified_datetime', date("Y-m-d H:i:s"));
+                        $auditLogAdd->execute();
                     }
                 }
             }
@@ -395,6 +407,6 @@ class Database
      */
     public static function noLogTable(): array
     {
-        return ["sessions","audit_log"];
+        return ["sessions","audit_log","log_types"];
     }
 }
