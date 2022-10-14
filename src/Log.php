@@ -23,7 +23,7 @@ class Log
 	 * @param string $detail
 	 * @return void
 	 */
-	public function this(string $logType, string $detail = ""): void
+	public function this(string $logType, string $detail = ""): string
 	{
 		if (!isset($this->logTypes[$logType])) {
 			$this->addLogType($logType);
@@ -59,6 +59,7 @@ class Log
 			$query->bindParam(':log_browser', $browser['parent']);
 			$query->bindParam(':log_os', $browser['platform']);
 			$query->execute();
+            return $this->database::getLastInsertedId();
 		} else {
 			die("logtype bulunmuyor. ekleyiniz. #" . $logType);
 		}

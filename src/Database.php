@@ -86,16 +86,45 @@ class Database
 	 * @param array $data Eklenecek veri 'column_name'=>'value'
 	 * @throws PDOException
 	 */
-	public static function insert(string $table, array $data): bool
+	public static function insert(string $table, array $data, string $logType="UNDEFINED"): bool
 	{
 		try {
 			$sql_text = self::getSqlText($data);
-			$insert = self::$db->prepare("INSERT INTO " . $table . " SET " . $sql_text . " ");
+            $sqlGenerated = "INSERT INTO " . $table . " SET " . $sql_text . " ";
+            $insert = self::$db->prepare($sqlGenerated);
 			foreach ($data as $dat_key => $dat_value) {
 				$insert->bindValue(':' . $dat_key, $dat_value, self::paramType($dat_value));
 			}
 
-			return $insert->execute();
+            $insert->execute();
+            $lastId = self::getLastInsertedId();
+
+            if($lastId > 0 && !in_array($table,self::noLogTable())){
+                global $db;
+                $log = new Log($db);
+                $actionLogId = $log->this($logType,$sqlGenerated);
+
+                foreach ($data as $field => $field_val) {
+                    $sqlaudit =  "INSERT INTO audit_log SET 
+                            action_log_id       = :action_log_id, 
+                            table_name          = :tablo, 
+                            field_name          = :field, 
+                            new_value           = :field_val, 
+                            activity            = 'INSERT',    
+                            modified_datetime   = :datetime,   
+                            modified_by_user_id = :user_id";
+                    $auditLogAdd = self::$db->prepare($sqlaudit);
+                    $auditLogAdd->bindValue(':action_log_id', (int)$actionLogId);
+                    $auditLogAdd->bindValue(':tablo', $table);
+                    $auditLogAdd->bindValue(':field', $field);
+                    $auditLogAdd->bindValue(':field_val', $field_val);
+                    $auditLogAdd->bindValue(':datetime', date("Y-m-d H:i:s"));
+                    $auditLogAdd->bindValue(':user_id', $_SESSION['user_id'] ?? 0);
+                    $auditLogAdd->execute();
+                }
+            }
+
+			return $lastId;
 
 		} catch (PDOException $e) {
 			throw self::throwException($e);
@@ -111,14 +140,20 @@ class Database
 	 * @param array $whereNot
 	 * @return bool
 	 */
-	public static function update(string $table, array $data, array $where, array $whereNotIn = NULL): bool
+	public static function update(string $table, array $data, array $where,string $logType = "UNDEFINED", array $whereNotIn = NULL): bool
 	{
 		try {
 			$sqlText = self::getSqlText($data);
 			$whereText = self::getWhereText($where);
 			$whereNotText = self::getWhereNotText($whereNotIn);
 
-			$update = self::$db->prepare("UPDATE " . $table . " SET " . $sqlText . " WHERE " . $whereText . $whereNotText . " ");
+            if(array_key_exists("id",$where)){
+                //güncellenme işşlemi yapılmadan önce orjinal veriyi çekelim
+                $oldData = self::selectQuery($table,["id"=>$where["id"]],true,null,2);
+            }
+
+            $sqlGenerated = "UPDATE " . $table . " SET " . $sqlText . " WHERE " . $whereText . $whereNotText . " ";
+			$update = self::$db->prepare($sqlGenerated);
 
 			foreach ($data as $dat_key => $dat_value) {
 				$update->bindValue(':' . $dat_key, $dat_value, self::paramType($dat_value));
@@ -128,7 +163,32 @@ class Database
 				$update->bindValue(':' . $key, $value, self::paramType($value));
 			}
 
-			return $update->execute();
+            $execute = $update->execute();
+            $affectedRows = $update->rowCount();
+
+            if($affectedRows > 0 && array_key_exists("id",$where) && !in_array($table,self::noLogTable())){
+                global $db;
+                $log = new Log($db);
+                $actionLogId = $log->this($logType,$sqlGenerated);
+
+                foreach ($data as $key=>$value){
+                    if($oldData[$key] != $value){
+                        $changeData = array();
+                        $changeData["action_log_id"] = (int)$actionLogId;
+                        $changeData["table_name"] = $table;
+                        $changeData["row_id"] = $where["id"];
+                        $changeData["field_name"] = $key;
+                        $changeData["new_value"] = $value;
+                        $changeData["old_value"] = $oldData[$key] ?? null;
+                        $changeData["activity"] = "EDIT";
+                        $changeData["modified_by_user_id"] = $_SESSION["user_id"];
+                        $changeData["modified_datetime"] = date("Y-m-d H:i:s");
+                        self::insert("audit_log",$changeData);
+                    }
+                }
+            }
+
+			return $execute;
 
 		} catch (PDOException $e) {
 			throw self::throwException($e);
@@ -328,4 +388,13 @@ class Database
 
 		return implode(", ", $sqlBuild);
 	}
+
+    /**
+     * audit_log tutulması istenmeyen tablolar
+     * @return string[]
+     */
+    public static function noLogTable(): array
+    {
+        return ["sessions","audit_log"];
+    }
 }
