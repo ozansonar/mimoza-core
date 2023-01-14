@@ -52,17 +52,14 @@ class Session
 		if (!empty($mail) && !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
 			$message["reply"][] = $this->functions->textManager("giris_email_gecerli_formatta_degil");
 		}
-        if(empty($message) && defined("LIVE_MODE")) {
-            $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
-            $recaptcha_secret = CAPTCHA_SECRET_KEY;
-            $recaptcha_response = $_POST['recaptcha_response'];
 
-            $recaptcha = file_get_contents($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
-            $recaptcha = json_decode($recaptcha);
-            if (isset($recaptcha) && $recaptcha->score < 0.6) {
-                $message["reply"][] = $this->functions->textManager("bot_onay");
+        if(empty($message) && defined("LIVE_MODE")) {
+            $captchaVerify = $this->functions->googleRecapcha();
+            if($captchaVerify["result"] === false){
+                $message["reply"][] = $captchaVerify["msg"];
             }
         }
+
 		if (empty($message)) {
 			$userData = $this->userControl($mail);
 			if (empty($userData)) {

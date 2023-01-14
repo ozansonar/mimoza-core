@@ -716,5 +716,25 @@ class Functions
 		return $months;
 	}
 
+    public function googleRecapcha():array
+    {
+        $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+        $recaptcha_secret = CAPTCHA_SECRET_KEY;
+        $recaptcha_response = $_POST['recaptcha_response'];
+
+        $recaptcha = file_get_contents($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
+        $recaptcha = json_decode($recaptcha);
+
+        $result = [];
+        if ($recaptcha->success  === false) {
+            $result["result"] = false;
+            $result["msg"] = $this->textManager("contact_validate_bot_onay");
+        }else{
+            $result["result"] = true;
+            $result["msg"] = "";
+        }
+        return  $result;
+    }
+
 
 }
