@@ -130,6 +130,7 @@ class Database
 			return $lastId;
 
 		} catch (PDOException $e) {
+            self::queryError("insert",$e,$table,$data);
 			throw self::throwException($e);
 		}
 	}
@@ -198,11 +199,14 @@ class Database
                         $auditLogAdd->execute();
                     }
                 }
+                //Ozan:22.01.2023 normalde burasnında açık gelmesi gerekiyor ancak çok dilli sistemlerde bir dilde veri eklemeyince hata olarak algılıyor her hangi bir veri olmadığı için oyüzden kapatıyorum
+                //self::queryError("update","query çalıştı ancak eski data ve yeni data arasında değişiklik olmadığı için update yapılamadı veya id ye ait data yok",$table,$data,$where,"Güncelleme işleminde hiçbir veri etkilenmedi");
             }
 
 			return $execute;
 
 		} catch (PDOException $e) {
+            self::queryError("update",$e,$table,$data,$where);
 			throw self::throwException($e);
 		}
 	}
@@ -408,5 +412,33 @@ class Database
     public static function noLogTable(): array
     {
         return ["sessions","audit_log","log_types"];
+    }
+
+    /**
+     * Querylerde oluşan hataları loglar
+     * @param string $type
+     * @param string $error
+     * @param string $table
+     * @param array $tableData
+     * @param array|null $whereData
+     * @param string|null $extraText
+     * @return void
+     */
+    public static function queryError(string $type, string $error, string $table,array $tableData, array $whereData = null, string $extraText = null):void
+    {
+        //hata aynı zamanda db ye de eklensin
+        $errorDb = [
+            "type" => $type,
+            "table" => $table,
+            "error" => $error,
+            "table_data" => json_encode($tableData),
+            "where_data" => json_encode($whereData),
+            "extra_text" => $extraText,
+            "lang" => $_SESSION["lang"],
+            "created_at" => date("Y-m-d H:i:s"),
+            "updated_at" => date("Y-m-d H:i:s"),
+            "status" => 1
+        ];
+        self::insert("query_error",$errorDb);
     }
 }
