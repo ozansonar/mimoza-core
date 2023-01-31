@@ -72,6 +72,25 @@ class Functions
 		}
 	}
 
+    /**
+     * Y-m-d H:i:s formatindaki tarihi 25.12.2023 15:30 formatına döndürür
+     * @param $date
+     * @return string
+     * @throws Exception
+     */
+    public function dateTimeConvertTr($date): ?string
+    {
+        if(empty($date)){
+            return null;
+        }
+        $date = new DateTime($date);
+        try {
+            return $date->format("d") . "." . $date->format("m") . "." . $date->format("Y")." ".$date->format("H").":".$date->format("i");
+        } catch (\Exception $e) {
+            return 'ERROR';
+        }
+    }
+
 	/**
 	 * @param $url
 	 */
