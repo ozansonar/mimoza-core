@@ -493,4 +493,17 @@ class SiteManager
 		$defaultLanguage = $this->database::selectQuery('lang',[ 'default_lang'=> 1, 'deleted'=>0, 'status'=>1],true);
 		return $defaultLanguage->short_lang;
 	}
+
+    /**
+     * Gönderilen tablodaki resmi siler
+     * @param string $lang
+     * @param int $id
+     * @param string $table
+     * @param string $column
+     * @return bool
+     */
+    public function imageDelete(string $lang, int $id,string $table, string $column = "img"):bool
+    {
+        return $this->database::update($table,[$column=>null],["id"=>$id,"lang"=>$lang]);
+    }
 }
