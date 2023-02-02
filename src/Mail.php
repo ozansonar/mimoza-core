@@ -16,10 +16,11 @@ class Mail
 	public string $address;
 	public string $subject;
 	public string $message;
-	public string $sender_name;
+	public ?string $sender_name = null;
 	public int $sent_status = 0;
 	public ?string $extra_log = null;
 	public int $send_type = 1;
+    public ?string $sendDebug = null;
 
 	public function __construct($database)
 	{
@@ -57,6 +58,7 @@ class Mail
 
 			if ((int)$settings->smtp_mail_send_debug === 2) {
 				$send_adress = $settings->smtp_send_debug_adres;
+                $this->sendDebug = $settings->smtp_send_debug_adres;
 			} else {
 				$send_adress = $this->address;
 			}
@@ -211,6 +213,7 @@ class Mail
 
 				if ((int)$settings->smtp_mail_send_debug === 2) {
 					$this->address = $settings->smtp_send_debug_adres;
+                    $this->sendDebug = $settings->smtp_send_debug_adres;
 				} else {
 					$this->address = $mailing_user_data->email;
 				}
@@ -328,6 +331,7 @@ class Mail
 	{
 		$db_data = array();
 		$db_data["mail"] = $this->address;
+		$db_data["send_debug"] = $this->sendDebug;
 		$db_data["subject"] = $this->subject;
 		$db_data["message"] = $this->message;
 		$db_data["sent_status"] = $this->sent_status;
