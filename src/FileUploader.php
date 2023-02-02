@@ -35,6 +35,18 @@ class FileUploader
 	 */
 	public bool $resize = false;
 
+    /**
+     * For height auto images
+     * @var bool
+     */
+    public bool $heightAuto = false;
+
+    /**
+     * For width auto images
+     * @var bool
+     */
+    public bool $widthAuto = false;
+
 	/**
 	 * Resize width
 	 *
@@ -54,7 +66,7 @@ class FileUploader
 	 *
 	 * @var int
 	 */
-	public int $maxFileSize = 2;
+	public int $maxFileSize = 1;
 
 	/**
 	 * File type to upload
@@ -119,7 +131,17 @@ class FileUploader
 				$handle->file_new_name_body = $image_name;
 
 				$handle->image_ratio = false;
-				if ($this->resize) {
+                if($this->heightAuto){
+                    //genişlik sabit uzunluk genişliğe göre boyut alır
+                    $handle->image_resize = true;
+                    $handle->image_ratio_y = true;
+                    $handle->image_x = $this->width;
+                }elseif ($this->widthAuto){
+                    //uzunluk sabit genişlik uzunluğa göre boyut alır
+                    $handle->image_resize = true;
+                    $handle->image_ratio_x = true;
+                    $handle->image_y = $this->height;
+                }elseif ($this->resize) {
 					$handle->image_resize = true;
 					//$handle->image_ratio_crop = false;
 					$handle->image_ratio_crop = true;
