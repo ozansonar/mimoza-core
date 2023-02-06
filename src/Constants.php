@@ -249,6 +249,11 @@ class Constants
 		1 => "Evet",
 		2 => "Hayır"
 	];
+    public const systemLanguageRoute = [
+        1 => "Evet",
+        2 => "Hayır",
+        3 => "Sadece varsayılan dilde linklerde dil kısaltması olmasın"
+    ];
 	public const mountText = [
 		1 => [
 			"text" => "Birinci",
