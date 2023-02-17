@@ -104,6 +104,8 @@ class Form
     {
 
         $label = $item["label"] ?? null;
+        $format = $item["format"] ?? "dd.mm.yyyy";
+        $dateLang = $item["language"] ?? "tr";
         $required = isset($item["required"]) && $item["required"] == 1 ? "required validate[required]" : null;
         $value = !empty($data) && isset($data[$name]) ? $this->functions->dateLong($data[$name]) : null;
         $value2 = !empty($data) && isset($data[$name]) ? $data[$name] : null;
@@ -111,7 +113,7 @@ class Form
         return '<div class="mb-3">
                     <label for="dtp_input_'.$name.'" class="form-label">' . $label . '</label>
                     <div class="d-flex form-date-custom">
-                        <div class="input-group  date div_' . $name . '" data-date="" data-date-format="dd MM yyyy" data-link-field="dtp_input_' . $name . '" data-link-format="yyyy-mm-dd">
+                        <div class="input-group  date div_' . $name . '" data-date="" data-link-field="dtp_input_' . $name . '">
                             <input type="text" class="form-control '.$required.'" value="' . $value . '" readonly placeholder="" aria-label="" aria-describedby="id_'.$name.'">
                             <input type="hidden" id="dtp_input_' . $name . '" value="' . $value2 . '" name="' . $name . '" />
                             <button class="btn btn-outline-secondary btn-calendar" type="button" id="id_'.$name.'">
@@ -127,15 +129,10 @@ class Form
                     $(document).ready(function(){
                        let FromEndDate = new Date();
                        $(".div_' . $name . '").datepicker({
-                            language:  "tr",
                             endDate: FromEndDate,
-                            weekStart: 1,
-                            todayBtn:  1,
-                            autoclose: 1,
-                            todayHighlight: 1,
-                            startView: 2,
-                            minView: 2,
-                            forceParse: 0
+                            format: "'.$format.'" ,
+                            language:  "'.$dateLang.'", 
+                            autoclose: 1, 
                         });
                     });
                 </script>
