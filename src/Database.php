@@ -87,7 +87,7 @@ class Database
 	 * @param array $data Eklenecek veri 'column_name'=>'value'
 	 * @throws PDOException
 	 */
-	public static function insert(string $table, array $data, string $logType="UNDEFINED"): bool
+	public static function insert(string $table, array $data, string $logType="UNDEFINED")
 	{
 		try {
 			$sql_text = self::getSqlText($data);
