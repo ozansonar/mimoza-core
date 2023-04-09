@@ -147,45 +147,34 @@ class AdminForm
 	 */
 	public function select(string $name, array $item = [], $data = null): string
 	{
-		if (is_array($data)){
-			$data = (object)$data;
-		}
-
+		$data = is_array($data) ? (object)$data : $data;
 		$brackets = isset($item['multiple']) ? '[]' : '';
-		$name_lang = !empty($this->lang) && empty($this->formNameWithoutLangCode) ? $name . "_" . $this->lang . $brackets : $name;
-		$label = isset($item["label"]) ? $item["label"] : null;
+		$name_lang = !empty($this->lang) && empty($this->formNameWithoutLangCode) ? "{$name}_{$this->lang}{$brackets}" : "{$name}{$brackets}";
+		$label = $item["label"] ?? null;
 		$multiple = isset($item["multiple"]) ? 'multiple="multiple"' : null;
 		$required = isset($item["required"]) && $item["required"] == 1 ? "required validate[required]" : null;
 		$value = !empty($data) && isset($data->{$this->lang}[$name]) ? $data->{$this->lang}[$name] : "-1";
-		$html = '<div class="form-group">
-                       <label for="id_' . $name . '">' . $label . '</label>
-                       <select class="form-control select2bs4 ' . $required . '" ' . $multiple . ' name="' . $name_lang . '"  id="id_' . $name_lang . '" style="width: 100%;">
-                           <option value="">Seçiniz</option>';
-		$each_item = null;
-		if (isset($item["multiple_lang_select"])) {
-			if (isset($item["select_item"][$this->lang])) {
-				foreach ($item["select_item"][$this->lang] as $item_key => $item_value) {
-					$each_item .= '<option value="' . $item_key . '" ' . ($value == $item_key ? "selected" : null) . '>' . $item_value . '</option>';
-				}
-			}
-		} else {
-			foreach ($item["select_item"] as $item_key => $item_value) {
-				$each_item .= '<option value="' . $item_key . '" ' . ($value == $item_key ? "selected" : null) . '>' . $item_value . '</option>';
-			}
-		}
 
-		$html .= $each_item . '</select>
-           </div>';
-		$html .= '
-               <script>
-                   $(document).ready(function(){
-                       //Initialize Select2 Elements
-                       $(".select2bs4").select2({
-                           theme: "bootstrap4"
-                       });
-                   });
-               </script>
-           ';
+		$html = "<div class='form-group'>
+                 <label for='id_{$name}'>{$label}</label>
+                 <select class='form-control select2bs4 {$required}' {$multiple} name='{$name_lang}' id='id_{$name_lang}' style='width: 100%;'>
+                     <option value=''>Seçiniz</option>";
+
+		$select_items = isset($item["multiple_lang_select"]) ? $item["select_item"][$this->lang] : $item["select_item"];
+		$values = is_string($value) ? explode(',', $value) : $value;
+
+		foreach ($select_items as $item_key => $item_value) {
+			$selected = is_array($values) && in_array($item_key, $values) || $item_key === $values ? "selected" : "";
+			$html .= "<option value='$item_key' $selected>$item_value</option>";
+		}
+		
+		$html .= '</select></div>
+              <script>
+                  $(document).ready(function(){
+                      $(".select2bs4").select2({ theme: "bootstrap4" });
+                  });
+              </script>';
+
 		return $html;
 	}
 
