@@ -234,12 +234,11 @@ class AdminForm
 		}
 		$html .= '</div>';
 		$html .= "<script>
-                            $(\".custom-file-input\").on(\"change\", function(e) {
-                                if (e.target.files.length) {
-                                    $(this).next('.custom-file-label').html(e.target.files[0].name);
-                                }
-                            });
-                            </script>";
+                    $(\".custom-file-input\").on(\"change\", function() {
+                        var fileName = $(this).val().split(\"\\/\").pop();
+                        $(this).siblings(\".custom-file-label\").addClass(\"selected\").html(fileName);
+                    });
+                   </script>";
 		return $html;
 	}
 
