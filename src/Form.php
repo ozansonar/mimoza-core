@@ -185,16 +185,20 @@ class Form
     {
         global $fileTypePath;
         $label = $item["label"] ?? null;
+        $labelInfo = $item["label_info"] ?? null;
+        $pathKey = $item["pathKey"] ?? "default";
         $onchange = isset($item["onchange"]) ? "onchange='".$item["onchange"]."'":null;
+        $accept = isset($item["accept"]) ? "accept='".$item["accept"]."'":null;
         $required = isset($item["required"]) && $item["required"] == 1 ? "required validate[required]" : null;
         $html = '<div class="mb-3">
-                      <label for="id_' . $name . '" class="form-label">' . $label . '</label>
-                      <input class="form-control '.$required.'" type="file" name="' . $name . '" id="id_' . $name . '" '.$onchange.'>
+                      <label for="id_' . $name . '" class="form-label">' . $label . ' '.$labelInfo.'</label>
+                      <input class="form-control '.$required.'" type="file" name="' . $name . '" id="id_' . $name . '" '.$onchange.' '.$accept.'>
                     </div>';
-        if (isset($data["img"]) && !empty($data["img"]) && file_exists($fileTypePath["user_image"]["full_path"] . $data["img"])) {
 
-            $html .= '<p class="mt-1">' . $label . ' ->';
-            $html .= '<a href="' . $fileTypePath["user_image"]["url"] . $data["img"] . '" data-fancybox="gallery"> Resmi Gör (tıklayınız)';
+        if (isset($data[$name]) && !empty($data[$name]) && file_exists(Constants::fileTypePath[$pathKey]["full_path"] . $data[$name])) {
+
+            $html .= '<p class="mt-1">Görsel';
+            $html .= '<a href="' . Constants::fileTypePath[$pathKey]["url"] . $data[$name] . '" class="text-decoration-none" data-fancybox="gallery"> <img src="'.Constants::fileTypePath[$pathKey]["url"] . $data[$name].'" style="width:40px;" >';
             $html .= '</a>';
             $html .= '</p>';
 
