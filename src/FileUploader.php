@@ -154,19 +154,19 @@ class FileUploader
 					//$handle->image_ratio_fill = true;
 				}
 				if ($this->uploadType === "img") {
-					$handle->allowed = array("image/png", "image/jpg");
+					$handle->allowed = array("image/png", "image/jpg", "image/jpeg");
 				} elseif ($this->uploadType === "pdf") {
 					$handle->allowed = array("application/pdf");
 				} elseif ($this->uploadType === "pdf_and_img") {
-					$handle->allowed = array("application/pdf", "image/jpg", "image/png", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+					$handle->allowed = array("application/pdf", "image/jpg", "image/jpeg", "image/png", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 				} elseif ($this->uploadType === "word") {
 					$handle->allowed = array("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 				} elseif ($this->uploadType === "pdf_word_image_excel") {
-					$handle->allowed = array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/excel", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/png", "image/jpg");
+					$handle->allowed = array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/excel", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/png", "image/jpg", "image/jpeg");
 				} elseif ($this->uploadType === "mp3") {
 					$handle->allowed = array("audio/*");
 				} else {
-					$handle->allowed = array("image/png", "image/jpg");
+					$handle->allowed = array("image/png", "image/jpg", "image/jpeg");
 				}
 
 				$handle->Process($url);
