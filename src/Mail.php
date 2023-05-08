@@ -21,6 +21,7 @@ class Mail
 	public ?string $extra_log = null;
 	public int $send_type = 1;
     public ?string $sendDebug = null;
+    public ?string $debug_mail = null;
 
 	public function __construct($database)
 	{
@@ -57,12 +58,12 @@ class Mail
 			$mail->addReplyTo($settings->smtp_send_email_reply_adres, $this->sender_name);
 
 			if ((int)$settings->smtp_mail_send_debug === 2) {
-				$send_adress = $settings->smtp_send_debug_adres;
+				$sendAdress = $settings->smtp_send_debug_adres;
                 $this->sendDebug = $settings->smtp_send_debug_adres;
 			} else {
-				$send_adress = $this->address;
+				$sendAdress = $this->address;
 			}
-			$mail->AddAddress($send_adress);
+			$mail->AddAddress($sendAdress);
 
 
 			//maile ait sabit resim yükleniyor
@@ -145,7 +146,7 @@ class Mail
 				//date_default_timezone_set('Etc/UTC');
 
 				//Create a new PHPMailer instance
-				$mail = new PHPMailer();
+				$mail = new PHPMailer(true);
 				$mail->isSMTP();
 				//charset
 				$mail->CharSet = PHPMailer::CHARSET_UTF8;
@@ -212,13 +213,14 @@ class Mail
 				$mail->msgHTML($body);
 
 				if ((int)$settings->smtp_mail_send_debug === 2) {
-					$this->address = $settings->smtp_send_debug_adres;
+                    $sendAdress = $settings->smtp_send_debug_adres;
                     $this->sendDebug = $settings->smtp_send_debug_adres;
 				} else {
-					$this->address = $mailing_user_data->email;
+                    $sendAdress = $mailing_user_data->email;
 				}
+                $this->address = $mailing_user_data->email;
 
-				$mail->addAddress($this->address, $mailing_user_data->name . " " . $mailing_user_data->surname);
+				$mail->addAddress($sendAdress, $mailing_user_data->name . " " . $mailing_user_data->surname);
 
 				if ($mail->send()) {
 					if ((int)$query_data->completed === 0) {
