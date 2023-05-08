@@ -205,7 +205,7 @@ class Functions
 	 * @param string $divider
 	 * @return string
 	 */
-	public function permalink(string $text, string $divider = '-'): string
+	public function permalink(string $text = null, string $divider = '-'): string
 	{
 		$charMap = [
 			// Latin
