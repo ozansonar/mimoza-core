@@ -133,26 +133,32 @@ class FileUploader
                     $image->image_convert = 'jpg';
                 }
 
-				$handle->image_ratio = false;
-                if($this->heightAuto){
-                    //genişlik sabit uzunluk genişliğe göre boyut alır
-                    $handle->image_resize = true;
-                    $handle->image_ratio_y = true;
-                    $handle->image_x = $this->width;
-                }elseif ($this->widthAuto){
-                    //uzunluk sabit genişlik uzunluğa göre boyut alır
-                    $handle->image_resize = true;
-                    $handle->image_ratio_x = true;
-                    $handle->image_y = $this->height;
-                }elseif ($this->resize) {
-					$handle->image_resize = true;
-					//$handle->image_ratio_crop = false;
-					$handle->image_ratio_crop = true;
-					$handle->image_x = $this->width;
-					$handle->image_y = $this->height;
-					//arka alanı beyaz yapar
-					//$handle->image_ratio_fill = true;
-				}
+                //sadece görsellerde bu işlemler yapılsın
+                if(in_array($handle->file_src_name_ext,$this->compressorExtension)){
+                    //resmin orjinalini yükleme
+                    $handle->Process($url.'orjinal');
+                    $handle->image_ratio = false;
+                    if($this->heightAuto){
+                        //genişlik sabit uzunluk genişliğe göre boyut alır
+                        $handle->image_resize = true;
+                        $handle->image_ratio_y = true;
+                        $handle->image_x = $this->width;
+                    }elseif ($this->widthAuto){
+                        //uzunluk sabit genişlik uzunluğa göre boyut alır
+                        $handle->image_resize = true;
+                        $handle->image_ratio_x = true;
+                        $handle->image_y = $this->height;
+                    }elseif ($this->resize) {
+                        $handle->image_resize = true;
+                        //$handle->image_ratio_crop = false;
+                        $handle->image_ratio_crop = true;
+                        $handle->image_x = $this->width;
+                        $handle->image_y = $this->height;
+                    }
+                    //arka alanı beyaz yapar
+                    //$handle->image_ratio_fill = true;
+                }
+
 				if ($this->uploadType === "img") {
 					$handle->allowed = array("image/png", "image/jpg", "image/jpeg");
 				} elseif ($this->uploadType === "pdf") {
@@ -170,17 +176,14 @@ class FileUploader
 				}
 
 				$handle->Process($url);
-				$img_path = $handle->file_dst_name;
 				if ($handle->processed) {
-					$img_name_explode = explode(".", $img_path);
-					$extension = end($img_name_explode);
 
-					if ($this->compressor && in_array($extension, $this->compressorExtension, true)) {
+					if ($this->compressor && in_array($handle->file_src_name_ext, $this->compressorExtension, true)) {
 						if (!file_exists($url . "compressed") && !mkdir($concurrentDirectory = $url . "compressed", 0777) && !is_dir($concurrentDirectory)) {
 							throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
 						}
 						// setting
-						$setting_img = array(
+						$settingImg = array(
 							'directory' => $url . "compressed", // directory file compressed output
 							'file_type' => array( // file format allowed
 								'image/jpeg',
@@ -189,12 +192,12 @@ class FileUploader
 							)
 						);
 						// create object
-						$ImgCompressor = new ImgCompressor($setting_img);
-						$ImgCompressor->run($url . $img_path, $extension, $this->compressorLevel, $img_path);
+						$ImgCompressor = new ImgCompressor($settingImg);
+						$ImgCompressor->run($url . $handle->file_dst_name, $handle->file_src_name_ext, $this->compressorLevel);
 					}
 					//resim yüklenmişse çalışır
 					$result["result"] = 1;
-					$result["img_name"] = $img_path;
+					$result["img_name"] = $handle->file_dst_name;
 
 				} else {
 					//resim yüklenememişse çalışır
