@@ -78,7 +78,7 @@ class Mail
 			include_once $this->system->path("includes/MailTemplate/MailTemplate.php");
 			$mailTemplate = str_replace(array("[MESSAGE]", "[SITE_URL]", "[SITE_URL]"), array($this->message, $this->system->url(), $this->system->url()), $mailTemplate);
 			$mail->Subject = $settings->project_name . $this->subject;
-			$mail->Body = $mailTemplate;
+            $mail->msgHTML($mailTemplate);
 			$mail->send();
 			$this->sent_status = 1;
 			$this->log();
