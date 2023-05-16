@@ -427,7 +427,12 @@ class AdminForm
             $name_lang = !empty($this->lang) && empty($this->formNameWithoutLangCode) ? $item["name"] . "_" . $this->lang : $item["name"];
             $id = "id_" . $name_lang;
             $check_value = $item["value"];
-            $value = !empty($data) && isset($data[$this->lang][$item["name"]]) ? $data[$this->lang][$item["name"]] : null;
+            $check_value = $item["value"];
+            if (!empty($this->lang) && empty($this->formNameWithoutLangCode)) {
+                $value = !empty($data) && isset($data[$this->lang][$item["name"]]) ? $data[$this->lang][$item["name"]] : null;
+            } else {
+                $value = !empty($data) && isset($data[$name_lang]) ? $data[$name_lang] : null;
+            }
             $checkbox .= '<div class="icheck-primary d-inline">
                         <input type="checkbox" class="form-check-input" name="' . $name_lang . '" id="' . $id . '" value="' . $check_value . '" ' . ((int)$value === (int)$check_value ? "checked" : null) . '>
                         <label for="' . $id . '" class="form-check-label user-select-none">
