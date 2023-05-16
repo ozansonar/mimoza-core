@@ -50,7 +50,7 @@ class Mail
 			$mail->SMTPAuth = true;
 			$mail->Username = $settings->smtp_email;
 			$mail->Password = $settings->smtp_password;
-			$mail->SMTPSecure = 'tls';
+			$mail->SMTPSecure = $settings->smtp_secure;
 			$mail->Port = $settings->smtp_port;
 			$mail->SetLanguage($_SESSION["lang"], 'phpmailler/language/');
 			$mail->SetFrom($settings->smtp_send_email_adres, $this->sender_name);

@@ -193,8 +193,8 @@ class Constants
 		2 => "Hayır",
 	];
 	public const smtpSecureType = [
-		1 => "SLL",
-		2 => "TLS"
+		'ssl' => "SSL",
+		'tls' => "TLS"
 	];
 	public const smtpSendMode = [
 		1 => "Normal mod (sistem de gitmesi gereken kişilere mail gönderir canlı mod)",
