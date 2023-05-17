@@ -24,16 +24,17 @@ class Functions
 	 */
 	public function dateLong($date): ?string
 	{
-		global $months;
-		if (empty($date)) {
-			return null;
-		}
-		$date = new DateTime($date);
-		try {
-			return $date->format("d") . " " . Constants::months[$_SESSION["lang"]]["long"][$date->format("m")] . ", " . $date->format("Y");
-		} catch (\Exception $e) {
-			return 'ERROR';
-		}
+        global $projectLanguages;
+        if (empty($date)) {
+            return null;
+        }
+        // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
+        $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        try {
+            return strftime('%d %B %Y', $truedate->format('U'));
+        } catch (\Exception $e) {
+            return 'ERROR';
+        }
 	}
 
 	/**
@@ -45,12 +46,17 @@ class Functions
 	 */
 	public function dateShort($date): ?string
 	{
-		if (empty($date)) {
-			return null;
-		}
-
-		$date = new DateTime($date);
-		return $date->format("d") . " " . Constants::months[$_SESSION["lang"]]["short"][$date->format("m")] . ", " . $date->format("Y");
+        global $projectLanguages;
+        if (empty($date)) {
+            return null;
+        }
+        // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
+        $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        try {
+            return strftime('%d %b %Y', $truedate->format('U'));
+        } catch (\Exception $e) {
+            return 'ERROR';
+        }
 	}
 
 	/**
@@ -188,7 +194,7 @@ class Functions
 	 * @param int $limit
 	 * @return string
 	 */
-	public function shorten(string $str, int $limit = 10): string
+	public function shorten(string $str = null, int $limit = 10): string
 	{
 		$str = strip_tags(htmlspecialchars_decode(html_entity_decode($str), ENT_QUOTES));
 		$length = strlen($str);

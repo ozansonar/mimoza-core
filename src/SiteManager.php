@@ -506,4 +506,58 @@ class SiteManager
     {
         return $this->database::update($table,[$column=>null],["id"=>$id,"lang"=>$lang]);
     }
+
+    public function imageDeleteNoLang(int $id,string $table, string $column = "img"):bool
+    {
+        return $this->database::update($table,[$column=>null],["id"=>$id]);
+    }
+
+    /**
+     * $langId ye ait tüm içeriklerin linki verir
+     * @param $langId
+     * @return array
+     */
+    public function getOrtherLanguageContent($langId):array
+    {
+        $query = $this->database::query('SELECT c.id,c.link,c.lang,c.lang_id,c.cat_id,cc.link as cc_link FROM content c INNER JOIN content_categories cc ON cc.id=c.cat_id WHERE c.lang_id=:lang_id AND c.status=1 AND c.deleted=0');
+        $query->bindParam(':lang_id',$langId);
+        $query->execute();
+        $data = $query->fetchAll(PDO::FETCH_OBJ);
+        $result = [];
+        if(!empty($data)){
+            foreach ($data as $row){
+                $result[$row->lang] = $this->system->urlWithoutLanguage($row->lang.'/'.$this->getPrefix('content',$row->lang).'/'.$row->cc_link.'-'.$row->cat_id.'/'.$row->link.'-'.$row->id);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * $langId ye ait tüm içeriklerin linki verir
+     * @param $langId
+     * @return array
+     */
+    public function getOrtherLanguageContentCategories($langId):array
+    {
+        $query = $this->database::query('SELECT cc.id,cc.link,cc.lang,cc.lang_id FROM content_categories cc WHERE cc.lang_id=:lang_id AND cc.status=1 AND cc.deleted=0');
+        $query->bindParam(':lang_id',$langId);
+        $query->execute();
+        $data = $query->fetchAll(PDO::FETCH_OBJ);
+        $result = [];
+        if(!empty($data)){
+            foreach ($data as $row){
+                $result[$row->lang] = $this->system->urlWithoutLanguage($row->lang.'/'.$this->getPrefix('content',$row->lang).'/'.$row->link.'-'.$row->id);
+            }
+        }
+        return $result;
+    }
+
+    public function getPrefix(string $prefix,?string $lang="tr"): string
+    {
+        global $settings;
+        if(isset($settings->{$prefix."_prefix_".$lang})){
+            return $settings->{$prefix."_prefix_".$lang};
+        }
+        return false;
+    }
 }
