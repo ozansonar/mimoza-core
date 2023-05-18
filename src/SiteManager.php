@@ -195,13 +195,16 @@ class SiteManager
      * @return string
      *
      */
-    public function createCategoryUrl(object $category): string
+    public function createCategoryUrl(object $category, string $lang = null): string
     {
         global $settings;
+        if(empty($lang)){
+            $lang = $_SESSION["lang"];
+        }
         if((int)$settings->link_sort_lang === 1){
-            return $this->system->url($settings->{"content_prefix_" . $_SESSION["lang"]} . "/" . $category->link . '-'.$category->id);
+            return $this->system->urlWithoutLanguage($lang.'/'.$settings->{"content_prefix_" . $lang} . "/" . $category->link . '-'.$category->id);
         }else{
-            return $this->system->urlWithoutLanguage($settings->{"content_prefix_" . $_SESSION["lang"]} . "/" .$category->link . '-'.$category->id);
+            return $this->system->urlWithoutLanguage($settings->{"content_prefix_" . $lang} . "/" .$category->link . '-'.$category->id);
         }
     }
 
@@ -212,10 +215,13 @@ class SiteManager
      * @return string
      *
      */
-    public function createCategoryLinkNoUrl(object $category): string
+    public function createCategoryLinkNoUrl(object $category, string $lang = null): string
     {
         global $settings;
-        return $settings->{"content_prefix_" . $_SESSION["lang"]} . "/" .$category->link . '-'.$category->id;
+        if(empty($lang)){
+            $lang = $_SESSION["lang"];
+        }
+        return $settings->{"content_prefix_" . $lang} . "/" .$category->link . '-'.$category->id;
     }
 
 	/**
