@@ -22,14 +22,21 @@ class Functions
 	 * @return string|null
 	 * @throws Exception
 	 */
-	public function dateLong($date): ?string
+	public function dateLong($date,string $type='datetime'): ?string
 	{
         global $projectLanguages;
         if (empty($date)) {
             return null;
         }
-        // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
-        $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        if($type === 'datetime'){
+            // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
+            $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        }elseif ($type === 'date'){
+            // convert the variable $yyyy mm dd to a real date with DateTime
+            $truedate = DateTime::createFromFormat('Y-m-d', $date);
+        }else{
+            $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        }
         try {
             return strftime('%d %B %Y', $truedate->format('U'));
         } catch (\Exception $e) {
@@ -44,14 +51,21 @@ class Functions
 	 * @return string|null
 	 * @throws Exception
 	 */
-	public function dateShort($date): ?string
+	public function dateShort($date,string $type='datetime'): ?string
 	{
         global $projectLanguages;
         if (empty($date)) {
             return null;
         }
-        // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
-        $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        if($type === 'datetime'){
+            // convert the variable $yyyy mm dd H:i:s to a real date with DateTime
+            $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        }elseif ($type === 'date'){
+            // convert the variable $yyyy mm dd to a real date with DateTime
+            $truedate = DateTime::createFromFormat('Y-m-d', $date);
+        }else{
+            $truedate = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        }
         try {
             return strftime('%d %b %Y', $truedate->format('U'));
         } catch (\Exception $e) {

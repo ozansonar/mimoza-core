@@ -581,4 +581,14 @@ class SiteManager
         }
         return false;
     }
+
+    /**
+     * @return array|false
+     */
+    public function getMailSendAdminList(){
+        $getAdmins = $this->database::query('SELECT id,name,surname,email FROM users WHERE `rank`>=60 AND send_mail=1 AND status=1 AND deleted=0');
+        $getAdmins->execute();
+        $getAdminsList = $getAdmins->fetchAll(PDO::FETCH_OBJ);
+        return $getAdminsList;
+    }
 }

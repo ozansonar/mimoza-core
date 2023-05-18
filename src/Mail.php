@@ -75,7 +75,7 @@ class Mail
 			$mail->isHTML();
 
 			//mail teması
-			include_once $this->system->path("includes/MailTemplate/MailTemplate.php");
+			include $this->system->path("includes/MailTemplate/MailTemplate.php");
 			$mailTemplate = str_replace(array("[MESSAGE]", "[SITE_URL]", "[SITE_URL]"), array($this->message, $this->system->url(), $this->system->url()), $mailTemplate);
 			$mail->Subject = $settings->project_name . $this->subject;
             $mail->msgHTML($mailTemplate);
