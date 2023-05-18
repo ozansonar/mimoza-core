@@ -552,6 +552,21 @@ class SiteManager
         return $result;
     }
 
+    public function getOrtherLanguagePage($langId):array
+    {
+        $query = $this->database::query('SELECT p.id,p.link,p.lang,p.lang_id FROM page p WHERE p.lang_id=:lang_id AND p.status=1 AND p.deleted=0');
+        $query->bindParam(':lang_id',$langId);
+        $query->execute();
+        $data = $query->fetchAll(PDO::FETCH_OBJ);
+        $result = [];
+        if(!empty($data)){
+            foreach ($data as $row){
+                $result[$row->lang] = $this->system->urlWithoutLanguage($row->lang.'/'.$row->link);
+            }
+        }
+        return $result;
+    }
+
     public function getPrefix(string $prefix,?string $lang="tr"): string
     {
         global $settings;
