@@ -591,4 +591,75 @@ class SiteManager
         $getAdminsList = $getAdmins->fetchAll(PDO::FETCH_OBJ);
         return $getAdminsList;
     }
+
+    public function getAllSectors($lang,&$output = null, $parent_id = 0, $indent = null){
+        global $db;
+        $statement = $db::query("SELECT id, name FROM menu WHERE top_id =:parent_id AND lang=:lang ORDER BY top_id, show_order");
+
+        $statement->execute(array(
+            'parent_id'     => $parent_id,
+            'lang'     => $lang
+        ));
+
+        // show the sectors one by one
+        while($row = $statement->fetch()){
+            if(empty($row['name'])){
+                continue;
+            }
+            $output .= '<option value=' . $row['id'] . '>' . $indent . $row['name'] . "</option>";
+            if($row['id'] != $parent_id){
+                // In case the current sectors's id is different than $parent_id
+                // I call the function again with new parameters(so it is recursive)
+                $this->getAllSectors($lang,$output, $row['id'], $indent . " » ");
+            }
+        }
+        // return the list of sectors(call out is in index.php)
+        return $output;
+    }
+
+    public function getMenus($lang,&$output = null, $parent_id = 0, $indent = null){
+        global $db,$session,$constants,$system;
+        $statement = $db::query("SELECT id, name FROM menu WHERE top_id =:parent_id AND lang=:lang AND deleted=0 ORDER BY show_order ASC");
+
+        $statement->execute(array(
+            'parent_id'     => $parent_id,
+            'lang'     => $lang
+        ));
+
+        // show the sectors one by one
+        while($row = $statement->fetch()){
+            if(empty($row['name'])){
+                continue;
+            }
+            $output .= '<div class="row mb-2">
+                <div class="col-md-9 d-flex align-items-center">
+                ' . $indent . $row['name'] .'
+                </div>               
+                 ';
+            $output .= '';
+            $output .= '<div class="col-md-3">';
+            if ($session->sessionRoleControl('menu', $constants::editPermissionKey) === true){
+                $output .= '
+                        <a href="'.$system->adminUrl("menu-settings?id=" . $row["id"]).'" class="btn btn-outline-success m-1">
+                            <i class="fas fa-pencil-alt px-1"></i>
+                            Düzenle
+                        </a>';
+            }
+            if ($session->sessionRoleControl('menu', $constants::deletePermissionKey) === true){
+                $output .= '
+                        <button type="button" class="btn btn-outline-danger m-1 post_delete" data-delete-url="'.$system->adminUrl("menu?delete=" . $row["id"]).'">
+                            <i class="fas fa-trash px-1"></i> Sil
+                        </button>';
+            }
+            $output .= '</div>';
+            $output .= '</div>';
+            if($row['id'] != $parent_id){
+                // In case the current sectors's id is different than $parent_id
+                // I call the function again with new parameters(so it is recursive)
+                $this->getMenus($lang,$output, $row['id'], $indent . " » ");
+            }
+        }
+        // return the list of sectors(call out is in index.php)
+        return $output;
+    }
 }
