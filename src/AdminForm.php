@@ -282,10 +282,10 @@ class AdminForm
         $disabled = isset($item["disabled"]) && $item["disabled"] == 1 ? "disabled" : null;
         $class = isset($item["class"]) ? $item["class"] : null;
         $value = null;
-        if(!empty($data) && empty($this->formNameWithoutLangCode) && isset($data->{$this->lang}->{$name})){
-            $value = $data->{$this->lang}->{$name} ?? null;
-        }elseif (!empty($data)){
-            $value = $data->{$name} ?? null;
+        if (!empty($this->lang)) {
+            $value = !empty($data) && isset($data->{$this->lang}[$name]) ? $data->{$this->lang}[$name] : null;
+        } else {
+            $value = !empty($data) && isset($data->{$name}) ? $data->{$name} : null;
         }
         $html = '<div class="form-group" id="div_' . $name_lang . '" ' . ($item_hidden == 1 ? $item["show_data"] == $item["show_value"] ? null : "style='display:none;'" : null) . '>
                         <label for="id_' . $name_lang . '">' . $label . '</label>
