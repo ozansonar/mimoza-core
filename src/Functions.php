@@ -2,10 +2,10 @@
 
 namespace OS\MimozaCore;
 
-use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use DateTime;
 use Exception;
+use DateTimeZone;
+use IntlDateFormatter;
 
 class Functions
 {
@@ -43,6 +43,81 @@ class Functions
             return 'ERROR';
         }
 	}
+
+    /**
+     * format_date_locale( $date_Object, $dateType , $timeType, $pattern );
+     *
+     * @param  {object} $date_Object  DateTime object or object accepted
+     * @param  {string} $dateType       'NONE', 'SHORT', 'MEDIUM', 'LONG', 'FULL'
+     * @param  {string} $timeType       'NONE', 'SHORT', 'MEDIUM', 'LONG', 'FULL'
+     * @param  {pattern} $pattern       'MMMM y' -> may 2022
+     * see how to set patterns: https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax
+     * @return {string}                     date formated locally
+     */
+    public function formatDateAndTimeLocale($date, $dateType = 'LONG', $timeType = 'NONE', $pattern = null)
+    {
+        global $projectLanguages;
+        $date_Object = new DateTime($date, new DateTimeZone($projectLanguages[$_SESSION['lang']]->timezone) );
+        // date format
+        switch ($dateType) {
+            case 'NONE':
+                $Date_Format = IntlDateFormatter::NONE; // 20220606 08:16 AM
+                break;
+            case 'SHORT':
+                $Date_Format = IntlDateFormatter::SHORT; // 06/06/2022
+                break;
+            case 'MEDIUM':
+                $Date_Format = IntlDateFormatter::MEDIUM; // 6 juin 2022 in [fr] must vary
+                break;
+            case 'LONG':
+                $Date_Format = IntlDateFormatter::LONG; // 6 juin 2022
+                break;
+            case 'FULL':
+                $Date_Format = IntlDateFormatter::FULL; // lundi 6 juin 2022
+                break;
+
+            default:
+                $Date_Format = IntlDateFormatter::SHORT;
+                break;
+        }
+
+        // time format
+        switch ($timeType) {
+            case 'NONE':
+                $Time_Format = IntlDateFormatter::NONE; // ''
+                break;
+            case 'SHORT':
+                $Time_Format = IntlDateFormatter::SHORT; // 08:11
+                break;
+            case 'MEDIUM':
+                $Time_Format = IntlDateFormatter::MEDIUM; // 08:11:10
+                break;
+            case 'LONG':
+                $Time_Format = IntlDateFormatter::LONG; // 08:09:33 UTC+2
+                break;
+            case 'FULL':
+                $Time_Format = IntlDateFormatter::FULL; // 08:10:38 heure d’été d’Europe centrale
+                break;
+
+            default:
+                $Time_Format = IntlDateFormatter::SHORT;
+                break;
+        }
+
+        // create date formatter
+        //  LANG_BACK, TIMEZONE, -> const API
+        $local_date = IntlDateFormatter::create(
+            $_SESSION['lang'], // lang
+            $Date_Format, // date
+            $Time_Format, // time
+            $projectLanguages[$_SESSION['lang']]->timezone, // timezone
+            null, // type of calendar / null -> const IntlDateFormatter::GREGORIAN
+            $pattern // pattern to apply or null
+        );
+
+        // return date formatted
+        return $local_date->format($date_Object);
+    }
 
 	/**
 	 * Y-m-d H:i:s formatindaki tarihi 12 Şub,2018 formatına döndürür
