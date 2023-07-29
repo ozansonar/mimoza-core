@@ -64,6 +64,7 @@ class View
 		global $message;
 		global $menuItems;
 		global $form;
+        global $projectFunctions;
 		$form = new Form();
 
 		$data['view'] = self::view($view);
